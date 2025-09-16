@@ -93,6 +93,23 @@ This **visualization** denotes:
 
 More visuals are available by setting `debug/visuals: true` in `config/params.yaml`.
 
+### 📚 Comprehensive Documentation
+
+For detailed understanding of the system, see our extensive documentation:
+
+- **[Comprehensive System Guide](docs/COMPREHENSIVE_SYSTEM_GUIDE.md)** - Complete explanation of algorithms, data structures, and workflows
+- **[Launch Analysis](docs/LAUNCH_ANALYSIS.md)** - Detailed breakdown of `ros1_example.launch` execution
+- **[Visual System Guide](docs/VISUAL_SYSTEM_GUIDE.md)** - Diagrams and flowcharts explaining system architecture
+
+These guides provide in-depth explanations of:
+- How components work together during `roslaunch guidance_planner ros1_example.launch`
+- Configuration parameters and their effects
+- ROS topics, nodes, services, and message flow
+- Homotopy comparison functions and when they're called
+- Graph building, propagation, and time evolution
+- Code examples and debugging techniques
+- Integration guidelines for real robot systems
+
 ## Usage
 To use this planner in C++, use `#include <guidance_planner/global_guidance.h>` and follow the example in `src/ros1_example.cpp`.
 
