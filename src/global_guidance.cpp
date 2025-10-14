@@ -957,4 +957,40 @@ namespace GuidancePlanner
     return BENCHMARKERS.getBenchmarker("Guidance Planner").getLast();
   }
 
+  /**
+   * @brief Compare an external GeometricPath against current guidance trajectories
+   * @param external_path The path to compare (e.g., from MPC optimization)
+   * @return Topology class ID of matching guidance trajectory, or fallback ID if no match
+   */
+  int GlobalGuidance::FindTopologyClassForPath(const GeometricPath &external_path)
+  {
+    // Fallback ID when no guidance is available or no match found
+    const int fallback_id = -999;
+
+    if (outputs_.empty())
+    {
+      LOG_WARN("No guidance trajectories available for topology comparison");
+      return fallback_id;
+    }
+
+    // Compare against all current guidance trajectories
+    for (size_t i = 0; i < outputs_.size(); i++)
+    {
+      const auto &guidance_path = outputs_[i].path.path; // StandaloneGeometricPath -> GeometricPath
+
+      if (prm_.AreHomotopicEquivalent(external_path, guidance_path))
+      {
+        LOG_INFO("MPC trajectory matched with guidance trajectory " << i
+                                                                    << " (topology class " << outputs_[i].topology_class << ")");
+        return outputs_[i].topology_class;
+      }
+    }
+
+    // No match found - this represents a topology switch
+    // The MPC found a different homotopy class than any of the guidance trajectories
+    LOG_WARN("MPC trajectory does not match any guidance trajectory - new topology found and topology switch detected");
+    LOG_INFO("Assigning fallback topology ID: " << fallback_id);
+
+    return fallback_id;
+  }
 } // namespace GuidancePlanner
