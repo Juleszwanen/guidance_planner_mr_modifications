@@ -962,16 +962,10 @@ namespace GuidancePlanner
    * @param external_path The path to compare (e.g., from MPC optimization)
    * @return Topology class ID of matching guidance trajectory, or fallback ID if no match
    */
-  int GlobalGuidance::FindTopologyClassForPath(const GeometricPath &external_path)
+  int GlobalGuidance::FindTopologyClassForPath(const GeometricPath &external_path, const std::string &_ego_robot_ns)
   {
     // Fallback ID when no guidance is available or no match found
-    const int fallback_id = -999;
-
-    if (outputs_.empty())
-    {
-      LOG_WARN("No guidance trajectories available for topology comparison");
-      return fallback_id;
-    }
+    const int fallback_id = 2 * this->GetConfig()->n_paths_;
 
     // Compare against all current guidance trajectories
     for (size_t i = 0; i < outputs_.size(); i++)
@@ -980,16 +974,16 @@ namespace GuidancePlanner
 
       if (prm_.AreHomotopicEquivalent(external_path, guidance_path))
       {
-        LOG_INFO("MPC trajectory matched with guidance trajectory " << i
-                                                                    << " (topology class " << outputs_[i].topology_class << ")");
+        LOG_INFO_THROTTLE(4000, _ego_robot_ns + " MPC trajectory matched with guidance trajectory " << i
+                                                                                                    << " (topology class " << outputs_[i].topology_class << ")");
         return outputs_[i].topology_class;
       }
     }
 
     // No match found - this represents a topology switch
     // The MPC found a different homotopy class than any of the guidance trajectories
-    LOG_WARN("MPC trajectory does not match any guidance trajectory - new topology found and topology switch detected");
-    LOG_INFO("Assigning fallback topology ID: " << fallback_id);
+    LOG_WARN_THROTTLE(1500, "MPC trajectory does not match any guidance trajectory - new topology found or NO paths available to compare with");
+    LOG_DEBUG("Assigning fallback topology ID: " << fallback_id);
 
     return fallback_id;
   }

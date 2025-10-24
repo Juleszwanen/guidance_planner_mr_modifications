@@ -28,10 +28,10 @@ namespace GuidancePlanner
 
     ~GlobalGuidance();
 
-  /** @note Jules: You added this functionality */
+    /** @note Jules: You added this functionality */
   public:
-    int FindTopologyClassForPath(const GeometricPath& external_path);
-    
+    int FindTopologyClassForPath(const GeometricPath &external_path, const std::string &_ego_robot_ns);
+
   public:
     /**
      * @brief Set the start point for PRM
