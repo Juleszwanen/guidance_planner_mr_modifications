@@ -870,8 +870,10 @@ namespace GuidancePlanner
         }
         else // Red
         {
-          text_marker.setColor(131. / 255., 10. / 255., 72. / 255., 1.0);
-          line.setColor(131. / 255., 10. / 255., 72. / 255., 1.0);
+          // text_marker.setColor(131. / 255., 10. / 255., 72. / 255., 1.0);
+          // line.setColor(131. / 255., 10. / 255., 72. / 255., 1.0);
+          text_marker.setColorInt(3.0, 1.0, RosTools::Colormap::BRUNO);
+          line.setColorInt(3.0, 1.0, RosTools::Colormap::BRUNO);
         }
       }
       else // Color scale
@@ -967,6 +969,15 @@ namespace GuidancePlanner
     // Fallback ID when no guidance is available or no match found
     const int fallback_id = 2 * this->GetConfig()->n_paths_;
 
+    // Check if we have any guidance trajectories to compare with
+    if (outputs_.empty())
+    {
+      LOG_WARN_THROTTLE(1500, _ego_robot_ns + " NO guidance trajectories available to compare MPC trajectory with");
+      // LOG_ERROR(_ego_robot_ns + " NO guidance trajectories available to compare MPC trajectory with");
+      LOG_DEBUG("Assigning fallback topology ID: " << fallback_id);
+      return fallback_id;
+    }
+
     // Compare against all current guidance trajectories
     for (size_t i = 0; i < outputs_.size(); i++)
     {
@@ -980,9 +991,12 @@ namespace GuidancePlanner
       }
     }
 
-    // No match found - this represents a topology switch
+    // No match found - this represents a new topology
     // The MPC found a different homotopy class than any of the guidance trajectories
-    LOG_WARN_THROTTLE(1500, "MPC trajectory does not match any guidance trajectory - new topology found or NO paths available to compare with");
+    LOG_WARN_THROTTLE(1500, _ego_robot_ns + " MPC trajectory does not match any of the " << outputs_.size() 
+                      << " guidance trajectories - NEW TOPOLOGY FOUND");
+    // LOG_WARN(_ego_robot_ns + " MPC trajectory does not match any of the " << outputs_.size() 
+    //   << " guidance trajectories - NEW TOPOLOGY FOUND");
     LOG_DEBUG("Assigning fallback topology ID: " << fallback_id);
 
     return fallback_id;
